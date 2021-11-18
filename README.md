@@ -19,10 +19,10 @@ Sincerely thanks to [TiDB](https://docs.pingcap.com/zh/tidb/stable) and [Apache 
 git clone https://github.com/LittleFall/flink-tidb-rdw && cd ./flink-tidb-rdw/
 
 # Reset Env
-docker-compose down -v; rm -rf logs
+podman-compose down; find logs -t f -exec rm {} \;
 
 # Startup
-docker-compose up -d
+podman-compose -t hostnet up -d
 ```
 
 You can use flink dashboard in [localhost:8081](localhost:8081).
@@ -30,7 +30,7 @@ You can use flink dashboard in [localhost:8081](localhost:8081).
 2. Create Table in MySQL and TiDB.
 
 ```bash
-docker-compose exec mysql mysql -uroot
+podman exec -it mysql mysql -uroot
 
 DROP DATABASE IF EXISTS test;
 CREATE DATABASE test; 
@@ -48,7 +48,7 @@ create table stuff(
 ```
 
 ```bash
-docker-compose exec mysql mysql -htidb -uroot -P4000
+podman exec -it mysql mysql -htidb -uroot -P4000
 
 use test;
 create table wide_stuff(
@@ -63,7 +63,7 @@ create table wide_stuff(
 3. Submit Task in Flink SQL Client.
 
 ```bash
-docker-compose exec jobmanager ./bin/sql-client.sh embedded -l ./connector-lib
+podman exec -it jobmanager ./bin/sql-client.sh embedded -l ./connector-lib
 ```
 
 create Flink table
@@ -74,7 +74,7 @@ create table base (
     base_location varchar(20)
 ) WITH (
     'connector' = 'mysql-cdc',
-    'hostname' = 'mysql',
+    'hostname' = 'localhost',
     'port' = '3306',
     'username' = 'root',
     'password' = '',
@@ -82,20 +82,19 @@ create table base (
     'table-name' = 'base'
 );
 
-
 create table stuff(
     stuff_id int primary key,
     stuff_base_id int,
     stuff_name varchar(20)
 ) WITH (
     'connector' = 'mysql-cdc',
-    'hostname' = 'mysql',
+    'hostname' = 'localhost',
     'port' = '3306',
     'username' = 'root',
     'password' = '',
     'database-name' = 'test',
     'table-name' = 'stuff'
-); 
+);
 
 create table wide_stuff(
     stuff_id int primary key,
@@ -103,9 +102,9 @@ create table wide_stuff(
     base_location varchar(20),
     stuff_name varchar(20)
 ) WITH (
-	'connector'  = 'jdbc',
+    'connector'  = 'jdbc',
     'driver'     = 'com.mysql.cj.jdbc.Driver',
-    'url'        = 'jdbc:mysql://tidb:4000/test?rewriteBatchedStatements=true',
+    'url'        = 'jdbc:mysql://localhost:4000/test?rewriteBatchedStatements=true',
     'table-name' = 'wide_stuff',
     'username'   = 'root',
     'password'   = ''
@@ -140,14 +139,14 @@ Then you can see four tasks in localhost:8081, they are:
 - Print the changelog of `base` table in MySQL to standard output.
 - Print the changelog of `stuff` table in MySQL to standard output.
 - Join `base` and `stuff` to `wide_stuff`, Print the changelog of `wide_stuff` table to standard output.
-- Wrint the changelog of `wide_stuff` table to TiDB.
+- Print the changelog of `wide_stuff` table to TiDB.
 
-You can use `docker-compose logs -f taskmanager` to see standard output.
+You can use `podman logs -f taskmanager` to see standard output.
 
 4. Write data to MySQL for testing.
 
 ```bash
-docker-compose exec mysql mysql -uroot
+podman exec -it mysql mysql -uroot
 
 use test;
 insert into base values (1, 'bj');
@@ -181,7 +180,7 @@ taskmanager_1   | -D(2,1,bj,lisi)
 See result in TiDB:
 
 ```bash
-docker-compose exec mysql mysql -htidb -uroot -P4000 -e"select * from test.wide_stuff";
+podman exec -it mysql mysql -htidb -uroot -P4000 -e"select * from test.wide_stuff";
 
 +----------+---------+---------------+------------+
 | stuff_id | base_id | base_location | stuff_name |

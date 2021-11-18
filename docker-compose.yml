@@ -3,6 +3,7 @@ services:
 
   jobmanager:
     image: flink:1.12.2-scala_2.12
+    container_name: jobmanager
     volumes:
       - ./logs/jobmanager/:/opt/flink/log/
       - ./config/flink-jars/:/opt/flink/connector-lib/
@@ -22,6 +23,7 @@ services:
 
   taskmanager:
     image: flink:1.12.2-scala_2.12
+    container_name: taskmanager
     volumes:
       - ./logs/taskmanager/:/opt/flink/log/
       - ./logs/flink-checkpoints/:/flink-checkpoints
@@ -48,17 +50,17 @@ services:
 
   mysql:
     image: mysql
+    container_name: mysql
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     ports:
       - 3307:3306
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
-    security_opt:
-      - seccomp:unconfined
 
   pd:
     image: pingcap/pd:latest
+    container_name: pd
     ports:
       - "2379"
     volumes:
@@ -78,6 +80,7 @@ services:
 
   tikv:
     image: pingcap/tikv:latest
+    container_name: tikv
     volumes:
       - ./config/tidb-config/tikv.toml:/tikv.toml:ro
       - ./logs/tidbs:/logs/
@@ -94,6 +97,7 @@ services:
 
   tidb:
     image: pingcap/tidb:latest
+    container_name: tidb
     ports:
       - "4000:4000"
       - "10080:10080"

@@ -78,7 +78,7 @@ max-days = 0
 max-backups = 0
 
 # Rotate log by day
-log-rotate = true
+#log-rotate = true
 
 [security]
 # Path of file that contains list of trusted SSL CAs for connection with mysql client.
@@ -122,7 +122,7 @@ stmt-count-limit = 5000
 tcp-keep-alive = true
 
 # The maximum number of retries when commit a transaction.
-retry-limit = 10
+#retry-limit = 10
 
 # Whether support cartesian product.
 cross-join = true
@@ -150,11 +150,6 @@ networks = ""
 
 # PROXY protocol header read timeout, unit is second
 header-timeout = 5
-
-[plan-cache]
-enabled = false
-capacity = 2560
-shards = 256
 
 [prepared-plan-cache]
 enabled = false
