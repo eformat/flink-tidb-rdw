@@ -208,9 +208,9 @@ docker-compose down -v && rm -rf ./logs && find ./config/canal-config -name "met
 # demos
 
 ```bash
-docker-compose exec mysql mysql -uroot # mysql
-docker-compose exec mysql mysql -uroot -htidb -P4000 # tidb
-docker-compose exec jobmanager ./bin/sql-client.sh embedded -l ./connector-lib # flink sql client
+podman exec -it mysql mysql -uroot # mysql
+podman exec -it mysql mysql -uroot -htidb -P4000 # tidb
+podman exec -it jobmanager ./bin/sql-client.sh embedded -l ./connector-lib # flink sql client
 ```
 
 ## Demo1: Datagen to Print
